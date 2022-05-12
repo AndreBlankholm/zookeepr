@@ -1,0 +1,24 @@
+{
+  "name": "zookeepr",
+  "version": "1.0.0",
+  "description": "11.1.3",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndreBlankholm/zookeepr.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AndreBlankholm/zookeepr/issues"
+  },
+  "homepage": "https://github.com/AndreBlankholm/zookeepr#readme",
+  "keywords": [],
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
