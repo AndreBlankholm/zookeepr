@@ -53,7 +53,7 @@ function filterByQuery(query, animalsArray) {  //----------------------- req.que
 }
 
 function findById(id, animalsArray) {
-  const results = animalsArray.filter(animal => animal.id === id)[0];
+  const results = animalsArray.filter(animal => animal.id === id)[0];        //finding one parameter by Id
   return results;
 }
 
