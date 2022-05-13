@@ -3,12 +3,12 @@ const express = require('express');
 const { animals } = require('./data/animals.json');  //creating a route that the front-end can request data from
 
 
-const PORT = process.env.PORT || 3001; // Heroku  sets its enviroment variable call proces.env.PORT. and if not, default to 3001
+const PORT = process.env.PORT || 3001; // Heroku sets its enviroment variable call proces.env.PORT. and if not, default to 3001
 
 const app = express();                       // setting up the server so we can say app.get instead of express()
 
 
-function filterByQuery(query, animalsArray) {
+function filterByQuery(query, animalsArray) {  //----------------------- req.query is multifaceted, often combining multiple parameters
   let personalityTraitsArray = []; 
 
   // Note that we save the animalsArray as filteredResults here:
@@ -52,17 +52,34 @@ function filterByQuery(query, animalsArray) {
   return filteredResults;
 }
 
+function findById(id, animalsArray) {
+  const results = animalsArray.filter(animal => animal.id === id)[0];
+  return results;
+}
 
 
-app.get('/api/animals', (req,res) => {   // the get() method requires two arguments. The first is a string that describes the route the client will have to fetch from. 
+//-------------------------- PAY ATTENTION TO THE ORDER OF THE ROUTES ---------------------------
+
+app.get('/api/animals', (req, res) => {   // the get() method requires two arguments. The first is a string that describes the route the client will have to fetch from. 
   let results = animals;
   if (req.query) {
     results = filterByQuery(req.query, results);
+  } else {
+    res.send(404);
   }
   
   res.json(results);
   console.log(results);
 });                              
+
+
+app.get('/api/animals/:id', (req,res) => {           //---------------------------- req.param is specific to a single property, often intended to retrieve a single record.
+  const result = findById(req.params.id, animals);
+  if (result) {                                      //if statment put in incase no result is found there will be a 404 error thrown
+    res.json(result);
+  }
+})
+
 
 app.listen(PORT, () => {
     console.log(`API server now on port ${PORT}!`);
