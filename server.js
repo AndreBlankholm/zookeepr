@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 
 const express = require('express');
 const { animals } = require('./data/animals.json');  //creating a route that the front-end can request data from
@@ -5,10 +7,20 @@ const { animals } = require('./data/animals.json');  //creating a route that the
 
 const PORT = process.env.PORT || 3001; // Heroku sets its enviroment variable call proces.env.PORT. and if not, default to 3001
 
-const app = express();                       // setting up the server so we can say app.get instead of express()
+const app = express();    // setting up the server so we can say app.get instead of express()
+
+
+
+//***-----At that point, the data will be run through a couple of functions to take the raw data transferred over HTTP and convert it to a JSON object.
+
+app.use(express.urlencoded({ extended: true })); //// parse incoming string or array data
+//both of these app.use if you plan tp accept POST data!!
+app.use(express.json());    // parse incoming JSON data
+//***------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 function filterByQuery(query, animalsArray) {  //----------------------- req.query is multifaceted, often combining multiple parameters
+
   let personalityTraitsArray = []; 
 
   // Note that we save the animalsArray as filteredResults here:
@@ -39,7 +51,6 @@ function filterByQuery(query, animalsArray) {  //----------------------- req.que
 
   });
 
-
   if (query.diet) {
     filteredResults = filteredResults.filter(animal => animal.diet === query.diet);
   }
@@ -52,9 +63,44 @@ function filterByQuery(query, animalsArray) {  //----------------------- req.que
   return filteredResults;
 }
 
+
 function findById(id, animalsArray) {
   const results = animalsArray.filter(animal => animal.id === id)[0];        //finding one parameter by Id
   return results;
+}
+
+
+function createNewAnimal(body, animalsArray) {  //Here, we just created a function that accepts the POST route's req.body value and the array we want to add the data to.
+  console.log(body);
+
+  const animal = body;  //change body(post in json to animal)
+
+  animalsArray.push(animal);    
+
+  fs.writeFileSync(                                   // synchronous version of fs.writeFile() and doesn't require a callback function
+    path.join(__dirname, './data/animals.json'),      
+    JSON.stringify({ animals: animalsArray }, null, 2)  //|KEEPS DATA FORMATTED| we need to save the JavaScript array data as JSON, so we use JSON.stringify() to convert it.
+  );                                                    //he null argument means we don't want to edit any of our existing data; if we did, we could pass something in there. The 2 indicates we want to create white space between our values to make it more readable.
+
+  return body;
+};
+
+// Add Validation to Our Data ---------------------------------------------------------------------
+
+function validateAnimal(animal) {
+  if (!animal.name || typeof animal.name !== 'string') {
+    return false;
+  }
+  if (!animal.species || typeof animal.species !== 'string') {
+    return false;
+  }
+  if (!animal.diet || typeof animal.diet !== 'string') {
+    return false;
+  }
+  if (!animal.personalityTraits || !Array.isArray(animal.personalityTraits)) {
+    return false;
+  }
+  return true;
 }
 
 
@@ -81,6 +127,29 @@ app.get('/api/animals/:id', (req,res) => {           //-------------------------
 })
 
 
+
+//-----------------------------------------------------------------------------------------
+
+
+
+app.post('/api/animals', (req, res) => {  // POST requests, we can package up data, typically as an object, and send it to the server.
+  console.log(req.body);                  // console.log(resq.body) 
+
+   // set id based on what the next index of the array will be
+  req.body.id = animals.length.toString();  // add id to animals string data and set data at the end of the JSON array
+
+   // if any data in req.body is incorrect, send 400 error back
+   if (!validateAnimal(req.body)) {
+    res.status(400).send('The animal is not properly formatted.');
+  } else {
+    const animal = createNewAnimal(req.body, animals);
+    res.json(animal);
+  }
+  
+});
+
+
+
 app.listen(PORT, () => {
-    console.log(`API server now on port ${PORT}!`);
-  });
+  console.log(`API server now on port ${PORT}!`);  //  
+});
