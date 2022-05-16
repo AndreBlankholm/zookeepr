@@ -16,6 +16,8 @@ const app = express();    // setting up the server so we can say app.get instead
 app.use(express.urlencoded({ extended: true })); //// parse incoming string or array data
 //both of these app.use if you plan tp accept POST data!!
 app.use(express.json());    // parse incoming JSON data
+
+app.use(express.static('public'));  // makes the links work for images, css, and script links
 //***------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -45,11 +47,11 @@ function filterByQuery(query, animalsArray) {  //----------------------- req.que
       // array will then contain only the entries that contain the trait,
       // so at the end we'll have an array of animals that have every one 
       // of the traits when the .forEach() loop is finished.
-    filteredResults = filteredResults.filter(
+      filteredResults = filteredResults.filter(
       animal => animal.personalityTraits.indexOf(trait) !== -1
-    );
+    )
 
-  });
+  })
 
   if (query.diet) {
     filteredResults = filteredResults.filter(animal => animal.diet === query.diet);
@@ -147,6 +149,29 @@ app.post('/api/animals', (req, res) => {  // POST requests, we can package up da
   }
   
 });
+
+
+app.get('/', (req, res) => {   //root route
+  res.sendFile(path.join(__dirname, './public/index.html'));  //index.html to be served from our Express.js server.
+  //res.sendFile displays the file we want to send back to the client.
+});
+
+app.get('/animals', (req, res) => {  
+  res.sendFile(path.join(__dirname, './public/animals.html'));
+});
+
+app.get('/zookeepers', (req, res) => {
+  res.sendFile(path.join(__dirname, './public/zookeepers.html'));
+});
+
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, './public/index.html'));  //( * )is catching wrong Url
+});
+
+
+
+
 
 
 
