@@ -147,6 +147,19 @@
         "loving"
       ],
       "id": "15"
+    },
+    {
+      "name": "loij",
+      "species": "tiger",
+      "diet": "carnivore",
+      "personalityTraits": [
+        "anxious"
+      ],
+      "id": "16"
+    },
+    {
+      "name": "Darlene",
+      "id": "jhgdja3ng2"
     }
   ]
 }
